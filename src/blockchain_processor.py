@@ -35,7 +35,7 @@ import deserialize
 from processor import Processor, print_log
 from storage import Storage
 from utils import logger, hash_decode, hash_encode, Hash, header_from_string, header_to_string, ProfiledThread, \
-    rev_hex, int_to_hex4
+    rev_hex, int_to_hex4, timestamp_safe, HashDcrypt
 
 class BlockchainProcessor(Processor):
 
@@ -174,19 +174,31 @@ class BlockchainProcessor(Processor):
 
     @staticmethod
     def block2header(b):
+        try:
+            block_height = b.get('height')
+            version = b.get('version')
+            prev_block_hash = b.get('previousblockhash')
+            merkle_root = b.get('merkleroot'),
+            timestamp = timestamp_safe(b.get('time'))
+            bits = int(b.get('bits'), 16)
+            nonce = b.get('nonce')
         return {
             "block_height": b.get('height'),
             "version": b.get('version'),
             "prev_block_hash": b.get('previousblockhash'),
             "merkle_root": b.get('merkleroot'),
-            "timestamp": b.get('time'),
+                "timestamp": timestamp_safe(b.get('time')),
             "bits": int(b.get('bits'), 16),
             "nonce": b.get('nonce'),
         }
+        except Exception as e:
+            print_log("Exception {}".format(e))
+
 
     def get_header(self, height):
         block_hash = self.bitcoind('getblockhash', (height,))
         b = self.bitcoind('getblock', (block_hash,))
+        print_log(b)
         return self.block2header(b)
 
     def init_headers(self, db_height):
@@ -231,7 +243,7 @@ class BlockchainProcessor(Processor):
 
     @staticmethod
     def hash_header(header):
-        return rev_hex(Hash(header_to_string(header).decode('hex')).encode('hex'))
+        return rev_hex(HashDcrypt(header_to_string(header).decode('hex')).encode('hex'))
 
     def read_header(self, block_height):
         if os.path.exists(self.headers_filename):
@@ -575,7 +587,7 @@ class BlockchainProcessor(Processor):
                     #  it's considered an error message
                     message = error["message"]
                     if "non-mandatory-script-verify-flag" in message:
-                        result = "Your client produced a transaction that is not accepted by the Bitcoin network any more. Please upgrade to Electrum 2.5.1 or newer\n"
+                        result = "Your client produced a transaction that is not accepted by the network any more. Please upgrade to Electrum 2.5.1 or newer\n"
                     else:
                         result = "The transaction was rejected by network rules.(" + message + ")\n" \
                             "[" + params[0] + "]"

@@ -26,8 +26,8 @@ Conventions
 In this document, lines starting with a hash sign (#) or a dollar sign ($)
 contain commands. Commands starting with a hash should be run as root,
 commands starting with a dollar should be run as a normal user (in this
-document, we assume that user is called 'bitcoin'). We also assume the
-bitcoin user has sudo rights, so we use `$ sudo command` when we need to.
+document, we assume that user is called 'slimcoin'). We also assume the
+slimcoin user has sudo rights, so we use `$ sudo command` when we need to.
 
 Strings that are surrounded by "lower than" and "greater than" ( < and > )
 should be replaced by the user with something appropriate. For example,
@@ -80,30 +80,30 @@ Instructions
 ### Step 1. Create a user for running bitcoind and Electrum server
 
 This step is optional, but for better security and resource separation I
-suggest you create a separate user just for running `bitcoind` and Electrum.
+suggest you create a separate user just for running `slimcoind` and Electrum.
 We will also use the `~/bin` directory to keep locally installed files
 (others might want to use `/usr/local/bin` instead). We will download source
 code files to the `~/src` directory.
 
-    $ sudo adduser bitcoin --disabled-password
+    $ sudo adduser slimcoin --disabled-password
     $ sudo apt-get install git
-    $ sudo su - bitcoin
+    $ sudo su - slimcoin
     $ mkdir ~/bin ~/src
     $ echo $PATH
 
-If you don't see `/home/bitcoin/bin` in the output, you should add this line
+If you don't see `/home/slimcoin/bin` in the output, you should add this line
 to your `.bashrc`, `.profile`, or `.bash_profile`, then logout and relogin:
 
     PATH="$HOME/bin:$PATH"
     $ exit
 
-### Step 2. Download bitcoind
+### Step 2. Download slimcoind
 
 We currently recommend bitcoin core 0.15.0 stable. If your package manager does not supply
 a recent bitcoind or you prefer to compile it yourself, here are some pointers for Ubuntu:
 
     $ sudo apt-get install make bsdmainutils g++ python-leveldb libboost-all-dev libssl-dev libdb++-dev pkg-config libevent-dev
-    $ sudo su - bitcoin
+    $ sudo su - slimcoin
     $ cd ~/src && wget https://bitcoin.org/bin/bitcoin-core-0.15.0/bitcoin-0.15.0.tar.gz
     $ sha256sum bitcoin-0.15.0.tar.gz | grep 54b6f54982da97f294d21ad69c6b8624f2cf40d157be0683123b2ba6db2bf2a1
     $ tar xfz bitcoin-0.15.0.tar.gz
@@ -279,7 +279,7 @@ in case you need to restore them.
 ### Step 9. Configure Electrum server
 
 Electrum reads a config file (/etc/electrum.conf) when starting up. This
-file includes the database setup, bitcoind RPC setup, and a few other
+file includes the database setup, slimcoind RPC setup, and a few other
 options.
 
 The "configure" script listed above will create a config file at /etc/electrum.conf
@@ -295,11 +295,11 @@ file handles for each connection made to the server. It's good practice to incre
 open files limit to 128k.
 
 The "configure" script will take care of this and ask you to create a user for running electrum-server.
-If you're using the user `bitcoin` to run electrum and have added it as shown in this document, run
+If you're using the user `slimcoin` to run electrum and have added it as shown in this document, run
 the following code to add the limits to your /etc/security/limits.conf:
 
-     echo "bitcoin hard nofile 131072" >> /etc/security/limits.conf
-     echo "bitcoin soft nofile 131072" >> /etc/security/limits.conf
+     echo "slimcoin hard nofile 131072" >> /etc/security/limits.conf
+     echo "slimcoin soft nofile 131072" >> /etc/security/limits.conf
 
 If you are on Debian > 8.0 Jessie or another distribution based on it, you also need to add these lines in /etc/pam.d/common-session and /etc/pam.d/common-session-noninteractive otherwise the limits in /etc/security/limits.conf will not work:
 
@@ -308,12 +308,12 @@ If you are on Debian > 8.0 Jessie or another distribution based on it, you also 
 
 Check if the limits are changed either by logging with the user configured to run Electrum server as. Example:
 
-    su - bitcoin
+    su - slimcoin
     ulimit -n
 
 Or if you use sudo and the user is added to sudoers group:
 
-    sudo -u bitcoin -i ulimit -n
+    sudo -u slimcoin -i ulimit -n
 
 
 Two more things for you to consider:
@@ -367,7 +367,7 @@ or hostname and the port. Press 'Ok' and the client will disconnect from the
 current server and connect to your new Electrum server. You should see your
 addresses and transactions history. You can see the number of blocks and
 response time in the server selection window. You should send/receive some
-bitcoins to confirm that everything is working properly.
+coins to confirm that everything is working properly.
 
 ### Step 13. Join us on IRC, subscribe to the server thread
 
